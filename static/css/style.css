@@ -1,0 +1,299 @@
+/* ==========================================================================
+   AyuMorph - Ayurvedic Plant Intelligence Portal
+   Academic B.Tech IT Project Stylesheet
+   ========================================================================== */
+
+:root {
+  --primary-deep: #1b4332;
+  --primary-forest: #2d6a4f;
+  --primary-leaf: #40916c;
+  --primary-mint: #52b788;
+  --primary-pale: #d8f3dc;
+  --bg-canvas: #f8faf8;
+  --bg-card: #ffffff;
+  --border-soft: #e2ece9;
+  --text-main: #1f2937;
+  --text-muted: #596773;
+  --shadow-sm: 0 2px 6px rgba(27, 67, 50, 0.04);
+  --shadow-md: 0 6px 18px rgba(27, 67, 50, 0.08);
+  --shadow-lg: 0 12px 28px rgba(27, 67, 50, 0.12);
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: var(--bg-canvas);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+/* --------------------------------------------------------------------------
+   Navbar & Navigation
+   -------------------------------------------------------------------------- */
+.navbar-ayumorph {
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-sm);
+  padding: 0.85rem 1rem;
+}
+
+.brand-text {
+  font-weight: 800;
+  font-size: 1.35rem;
+  color: var(--primary-deep);
+  letter-spacing: -0.5px;
+}
+
+.brand-text span {
+  color: var(--primary-leaf);
+}
+
+.brand-badge {
+  font-size: 0.65rem;
+  letter-spacing: 0.5px;
+  background-color: var(--primary-pale);
+  color: var(--primary-deep);
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  vertical-align: middle;
+}
+
+.nav-link {
+  font-weight: 500;
+  color: var(--text-main);
+  transition: color 0.2s ease;
+  margin: 0 0.2rem;
+}
+
+.nav-link:hover, .nav-link.active {
+  color: var(--primary-forest);
+}
+
+/* --------------------------------------------------------------------------
+   Buttons & Badges
+   -------------------------------------------------------------------------- */
+.btn-ayumorph {
+  background-color: var(--primary-deep);
+  color: #ffffff;
+  border: 1px solid var(--primary-deep);
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 1.25rem;
+  transition: all 0.25s ease;
+}
+
+.btn-ayumorph:hover {
+  background-color: var(--primary-forest);
+  border-color: var(--primary-forest);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(45, 106, 79, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn-outline-ayumorph {
+  background-color: transparent;
+  color: var(--primary-deep);
+  border: 1.5px solid var(--primary-deep);
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 1.25rem;
+  transition: all 0.25s ease;
+}
+
+.btn-outline-ayumorph:hover {
+  background-color: var(--primary-deep);
+  color: #ffffff;
+}
+
+.badge-ayurvedic {
+  background-color: #d8f3dc;
+  color: #1b4332;
+  font-weight: 700;
+  padding: 0.4rem 0.75rem;
+  border-radius: 30px;
+  border: 1px solid #b7e4c7;
+}
+
+.badge-non-ayurvedic {
+  background-color: #f3f4f6;
+  color: #4b5563;
+  font-weight: 700;
+  padding: 0.4rem 0.75rem;
+  border-radius: 30px;
+  border: 1px solid #e5e7eb;
+}
+
+/* --------------------------------------------------------------------------
+   Cards & Layout Components
+   -------------------------------------------------------------------------- */
+.ayu-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ayu-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.hero-box {
+  background: linear-gradient(135deg, #f0f7f4 0%, #e8f5ed 100%);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 3.5rem 2rem;
+}
+
+.stat-card {
+  background-color: #ffffff;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-color: var(--primary-leaf);
+}
+
+.stat-number {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--primary-deep);
+  line-height: 1.1;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 0.35rem;
+}
+
+/* --------------------------------------------------------------------------
+   Drag-and-Drop Image Uploader
+   -------------------------------------------------------------------------- */
+.upload-dropzone {
+  border: 2px dashed #74c69d;
+  border-radius: var(--radius-md);
+  background-color: #f7faf8;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.upload-dropzone:hover, .upload-dropzone.dragover {
+  border-color: var(--primary-forest);
+  background-color: #eef6f1;
+}
+
+.dropzone-icon {
+  font-size: 3rem;
+  color: var(--primary-forest);
+  margin-bottom: 1rem;
+}
+
+.preview-container {
+  display: none;
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.preview-image {
+  max-width: 100%;
+  max-height: 280px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border-soft);
+  box-shadow: var(--shadow-sm);
+  object-fit: cover;
+}
+
+/* --------------------------------------------------------------------------
+   Medical & Academic Disclaimer Banner
+   -------------------------------------------------------------------------- */
+.disclaimer-card {
+  background-color: #fffbeb;
+  border: 1px solid #fde68a;
+  border-left: 5px solid #f59e0b;
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+}
+
+.disclaimer-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #92400e;
+  margin-bottom: 0.25rem;
+}
+
+.disclaimer-text {
+  font-size: 0.85rem;
+  color: #78350f;
+  margin-bottom: 0;
+  line-height: 1.45;
+}
+
+/* --------------------------------------------------------------------------
+   Loading Overlay
+   -------------------------------------------------------------------------- */
+#loading-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.88);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.spinner-ayumorph {
+  width: 3.5rem;
+  height: 3.5rem;
+  border: 4px solid #b7e4c7;
+  border-top: 4px solid var(--primary-deep);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* --------------------------------------------------------------------------
+   Footer
+   -------------------------------------------------------------------------- */
+.footer-ayumorph {
+  background-color: #ffffff;
+  border-top: 1px solid var(--border-soft);
+  padding: 2rem 0 1.5rem;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}

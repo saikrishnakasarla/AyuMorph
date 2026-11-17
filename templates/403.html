@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Access Denied (403) – AyuMorph{% endblock %}
+
+{% block content %}
+<div class="container py-5 text-center">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="ayu-card p-5">
+        <i class="bi bi-shield-lock-fill text-warning fs-1 mb-3 d-block"></i>
+        <h1 class="display-5 fw-bold text-dark mb-2">403</h1>
+        <h4 class="fw-bold text-dark mb-3">Access Denied / Unauthorized</h4>
+        <p class="text-muted small mb-4">
+          You do not have permission to view or manipulate this classification record.
+        </p>
+        <a href="{% url 'classifier:dashboard' %}" class="btn btn-ayumorph">Return to Dashboard</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

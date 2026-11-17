@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Identify Plant Specimen – AyuMorph{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+
+  <div class="mb-4">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'classifier:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Identify Plant</li>
+      </ol>
+    </nav>
+    <h1 class="fw-bold text-dark mb-1">Plant Vision Classification</h1>
+    <p class="text-muted">Upload a clear leaf or botanical photograph for MobileNetV2 classification</p>
+  </div>
+
+  <div class="row g-4 justify-content-center">
+    <div class="col-lg-8">
+
+      <div class="ayu-card p-4 p-sm-5">
+        <form method="post" enctype="multipart/form-data" id="plant-upload-form" novalidate>
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger py-2 small mb-3">
+              {% for error in form.non_field_errors %}
+                <div>{{ error }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <!-- Drag and Drop Upload Area -->
+          <div class="mb-4">
+            <div class="upload-dropzone" id="upload-dropzone">
+              <div class="dropzone-prompt">
+                <i class="bi bi-cloud-arrow-up dropzone-icon"></i>
+                <h5 class="fw-bold text-dark mb-1">Drag and drop your plant specimen photo here</h5>
+                <p class="text-muted small mb-3">Or click anywhere in this box to browse files from your computer</p>
+                <button type="button" class="btn btn-outline-ayumorph btn-sm px-3" onclick="document.getElementById('image-input').click();">
+                  <i class="bi bi-folder2-open me-1"></i> Browse Local Files
+                </button>
+                <div class="text-muted mt-3" style="font-size: 0.75rem;">
+                  Supported Formats: JPEG, PNG, WEBP &bull; Max File Size: 5 MB
+                </div>
+              </div>
+
+              <!-- Hidden Real File Input -->
+              <div class="d-none">
+                {{ form.image }}
+              </div>
+
+              <!-- Instant Preview Area -->
+              <div class="preview-container" id="preview-container">
+                <img src="" alt="Selected Specimen Preview" class="preview-image mb-2" id="preview-image">
+                <div class="d-flex align-items-center justify-content-center gap-3">
+                  <span class="badge bg-light text-dark border" id="preview-filename"></span>
+                  <span class="badge bg-light text-muted border" id="preview-filesize"></span>
+                  <button type="button" class="btn btn-sm btn-outline-danger" id="remove-preview-btn">
+                    <i class="bi bi-x-circle me-1"></i> Remove
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {% if form.image.errors %}
+              <div class="text-danger small mt-2">
+                <i class="bi bi-exclamation-circle me-1"></i> {{ form.image.errors.0 }}
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Optional Notes Field -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold small text-muted">
+              <i class="bi bi-journal-text me-1"></i> Field Notes / Specimen Observations (Optional)
+            </label>
+            {{ form.notes }}
+            {% if form.notes.errors %}
+              <div class="text-danger small mt-1">{{ form.notes.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Submit Button -->
+          <div class="d-grid mb-3">
+            <button type="submit" class="btn btn-ayumorph btn-lg" id="submit-btn">
+              <i class="bi bi-cpu me-2"></i> Analyze Plant Specimen
+            </button>
+          </div>
+
+          <div class="small text-muted text-center">
+            Images are securely processed using MobileNetV2 transfer learning.
+          </div>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- Right Side: Best Practice Tips -->
+    <div class="col-lg-4">
+      <div class="ayu-card p-4 mb-4">
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-lightbulb text-warning me-2"></i> Specimen Capture Guidelines</h5>
+        <ul class="list-unstyled small text-muted mb-0">
+          <li class="mb-3 d-flex align-items-start gap-2">
+            <i class="bi bi-check2 text-success fs-5"></i>
+            <div><strong>Isolated Subject:</strong> Focus closely on a clean leaf or flower cluster without human hands or clutter in the frame.</div>
+          </li>
+          <li class="mb-3 d-flex align-items-start gap-2">
+            <i class="bi bi-check2 text-success fs-5"></i>
+            <div><strong>Uniform Lighting:</strong> Capture images under natural daylight to prevent deep shadows or lens glare.</div>
+          </li>
+          <li class="mb-3 d-flex align-items-start gap-2">
+            <i class="bi bi-check2 text-success fs-5"></i>
+            <div><strong>Sharp Focus:</strong> Ensure venation, leaf margins, and textures are sharp for maximum feature extraction fidelity.</div>
+          </li>
+          <li class="d-flex align-items-start gap-2">
+            <i class="bi bi-check2 text-success fs-5"></i>
+            <div><strong>Standard Orientation:</strong> Center the leaf vertically or horizontally on a neutral background where feasible.</div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="disclaimer-card shadow-sm m-0">
+        <h6 class="disclaimer-title"><i class="bi bi-info-circle me-1"></i> Academic Demonstration</h6>
+        <p class="disclaimer-text">
+          Predicted probabilities represent statistical pattern similarity computed by the MobileNetV2 model and should not be used as the sole basis for clinical or pharmacological ingestion.
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Fullscreen Inference Loading Overlay -->
+<div id="loading-overlay">
+  <div class="spinner-ayumorph mb-3"></div>
+  <h4 class="fw-bold text-dark mb-1">Executing MobileNetV2 Inference</h4>
+  <p class="text-muted small">Validating image tensors &bull; Extracting morphological features &bull; Computing confidence...</p>
+</div>
+{% endblock %}

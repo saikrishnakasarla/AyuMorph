@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Prediction History – AyuMorph{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+
+  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-4">
+    <div>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1">
+          <li class="breadcrumb-item"><a href="{% url 'classifier:dashboard' %}">Dashboard</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Prediction History</li>
+        </ol>
+      </nav>
+      <h1 class="h2 fw-bold text-dark mb-0">My Classification History</h1>
+      <p class="text-muted small mb-0">Total logged inferences: <strong>{{ total_count }}</strong></p>
+    </div>
+    <div>
+      <a href="{% url 'classifier:upload' %}" class="btn btn-ayumorph">
+        <i class="bi bi-camera me-1"></i> New Classification
+      </a>
+    </div>
+  </div>
+
+  <!-- Search & Filter Controls -->
+  <div class="ayu-card p-3 mb-4">
+    <form method="get" class="row g-2 align-items-center">
+      <div class="col-md-5">
+        <div class="input-group">
+          <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+          <input type="text" name="q" class="form-control border-start-0" placeholder="Search by class, plant name, or notes..." value="{{ search_query }}">
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <select name="class" class="form-select">
+          <option value="">All Classifications</option>
+          <option value="ayurvedic" {% if class_filter == 'ayurvedic' %}selected{% endif %}>Ayurvedic Plants Only</option>
+          <option value="non_ayurvedic" {% if class_filter == 'non_ayurvedic' %}selected{% endif %}>Non-Ayurvedic Plants Only</option>
+        </select>
+      </div>
+      <div class="col-6 col-md-2">
+        <select name="sort" class="form-select">
+          <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest First</option>
+          <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>Oldest First</option>
+          <option value="confidence_desc" {% if sort_by == 'confidence_desc' %}selected{% endif %}>Highest Confidence</option>
+          <option value="confidence_asc" {% if sort_by == 'confidence_asc' %}selected{% endif %}>Lowest Confidence</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-ayumorph w-100">Filter</button>
+        {% if search_query or class_filter or sort_by != 'newest' %}
+          <a href="{% url 'classifier:history' %}" class="btn btn-light border" title="Reset Filters"><i class="bi bi-x-lg"></i></a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  <!-- Inferences Table -->
+  <div class="ayu-card p-0 mb-4 overflow-hidden">
+    {% if page_obj.object_list %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col" style="width: 80px;" class="ps-4">Specimen</th>
+              <th scope="col">ID &amp; Class</th>
+              <th scope="col">Confidence</th>
+              <th scope="col">Catalog Link</th>
+              <th scope="col">Inference Date</th>
+              <th scope="col" class="text-end pe-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for pred in page_obj.object_list %}
+              <tr>
+                <td class="ps-4">
+                  {% if pred.uploaded_image %}
+                    <img src="{{ pred.uploaded_image.url }}" alt="Specimen" class="rounded border shadow-sm" style="width: 52px; height: 52px; object-fit: cover;">
+                  {% else %}
+                    <div class="bg-light rounded border text-muted small text-center p-2" style="width: 52px; height: 52px;">N/A</div>
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="fw-bold text-dark mb-1">
+                    #AYU-{{ pred.id|stringformat:"05d" }}
+                  </div>
+                  <div>
+                    {% if pred.is_ayurvedic %}
+                      <span class="badge badge-ayurvedic">{{ pred.predicted_class }}</span>
+                    {% else %}
+                      <span class="badge badge-non-ayurvedic">{{ pred.predicted_class }}</span>
+                    {% endif %}
+                    {% if pred.prediction_status == 'FAILED' %}
+                      <span class="badge bg-danger ms-1">Failed</span>
+                    {% endif %}
+                  </div>
+                </td>
+                <td>
+                  {% if pred.prediction_status == 'SUCCESS' %}
+                    <div class="d-flex align-items-center gap-2" style="max-width: 130px;">
+                      <div class="progress flex-grow-1" style="height: 6px;">
+                        <div class="progress-bar {% if pred.is_ayurvedic %}bg-success{% else %}bg-secondary{% endif %}" role="progressbar" style="width: {{ pred.confidence }}%;"></div>
+                      </div>
+                      <span class="small fw-semibold text-dark">{{ pred.confidence|floatformat:1 }}%</span>
+                    </div>
+                  {% else %}
+                    <span class="text-muted small">&ndash;</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if pred.plant %}
+                    <a href="{% url 'plants:plant_detail' pred.plant.pk %}" class="badge bg-success-subtle text-success text-decoration-none border border-success-subtle">
+                      <i class="bi bi-flower1 me-1"></i> {{ pred.plant.name }}
+                    </a>
+                  {% else %}
+                    <span class="text-muted small">None linked</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="small text-dark">{{ pred.created_at|date:"M d, Y" }}</div>
+                  <div class="text-muted" style="font-size: 0.75rem;">{{ pred.created_at|time:"h:i A" }}</div>
+                </td>
+                <td class="text-end pe-4">
+                  <div class="btn-group btn-group-sm">
+                    <a href="{% url 'classifier:prediction_result' pred.pk %}" class="btn btn-outline-success" title="View Result">
+                      <i class="bi bi-eye"></i>
+                    </a>
+                    <a href="{% url 'classifier:prediction_detail' pred.pk %}" class="btn btn-outline-secondary" title="Technical Audit Details">
+                      <i class="bi bi-info-circle"></i>
+                    </a>
+                    <a href="{% url 'classifier:prediction_delete' pred.pk %}" class="btn btn-outline-danger" title="Delete Record">
+                      <i class="bi bi-trash"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Navigation -->
+      {% if page_obj.has_other_pages %}
+        <div class="p-3 border-top d-flex justify-content-between align-items-center">
+          <div class="small text-muted">
+            Showing page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+          </div>
+          <nav aria-label="Page navigation">
+            <ul class="pagination pagination-sm mb-0">
+              {% if page_obj.has_previous %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if class_filter %}&class={{ class_filter }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">Previous</a>
+                </li>
+              {% else %}
+                <li class="page-item disabled"><span class="page-link">Previous</span></li>
+              {% endif %}
+
+              {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                  <li class="page-item active"><span class="page-link bg-success border-success">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                  <li class="page-item"><a class="page-link" href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if class_filter %}&class={{ class_filter }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">{{ num }}</a></li>
+                {% endif %}
+              {% endfor %}
+
+              {% if page_obj.has_next %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if class_filter %}&class={{ class_filter }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">Next</a>
+                </li>
+              {% else %}
+                <li class="page-item disabled"><span class="page-link">Next</span></li>
+              {% endif %}
+            </ul>
+          </nav>
+        </div>
+      {% endif %}
+
+    {% else %}
+      <div class="text-center py-5">
+        <i class="bi bi-search text-muted fs-1 mb-2 d-block"></i>
+        <h6 class="fw-bold text-dark">No prediction records found</h6>
+        <p class="small text-muted mb-3">Try adjusting your search criteria or classify a new plant photo.</p>
+        <a href="{% url 'classifier:upload' %}" class="btn btn-sm btn-ayumorph">Upload Plant Photo</a>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

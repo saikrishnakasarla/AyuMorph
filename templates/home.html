@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AyuMorph – AI-Powered Ayurvedic Plant Image Classification{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <!-- Hero Section -->
+  <div class="hero-box text-center mb-5">
+    <div class="mb-3">
+      <span class="badge badge-ayurvedic fs-6 px-3 py-2">
+        <i class="bi bi-cpu me-1"></i> MobileNetV2 Deep Learning &bull; Computer Vision
+      </span>
+    </div>
+    <h1 class="display-4 fw-bold text-success mb-3">
+      Ayu<span class="text-dark">Morph</span>
+    </h1>
+    <p class="lead text-muted mx-auto mb-4" style="max-width: 760px;">
+      AI-Powered Ayurvedic Plant Image Classification &amp; Botanical Knowledge Portal.
+      Instantly classify herbal specimens from digital photographs, examine physical morphological markers, and inspect historically documented Ayurvedic applications.
+    </p>
+    <div class="d-flex flex-wrap justify-content-center gap-3">
+      <a href="{% url 'classifier:upload' %}" class="btn btn-ayumorph btn-lg px-4">
+        <i class="bi bi-camera me-2"></i> Identify a Plant
+      </a>
+      <a href="{% url 'plants:plant_list' %}" class="btn btn-outline-ayumorph btn-lg px-4">
+        <i class="bi bi-flower1 me-2"></i> Explore Plants
+      </a>
+      {% if not user.is_authenticated %}
+        <a href="{% url 'login' %}" class="btn btn-light btn-lg px-4 border">
+          <i class="bi bi-box-arrow-in-right me-2"></i> Researcher Login
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Educational & Medical Disclaimer -->
+  <div class="disclaimer-card shadow-sm mb-5">
+    <div class="d-flex align-items-start gap-3">
+      <i class="bi bi-shield-exclamation text-warning fs-3 mt-1"></i>
+      <div>
+        <h5 class="disclaimer-title mb-1">Academic Project &amp; Informational Disclaimer</h5>
+        <p class="disclaimer-text">
+          AyuMorph is developed as an academic B.Tech Information Technology research demonstration.
+          The deep learning classifications and traditional botanical literature presented on this portal are for scientific inquiry, education, and botanical identification support.
+          Documented traditional uses reflect classical Ayurvedic compendia (e.g., Charaka Samhita, Sushruta Samhita) and are <strong>not</strong> medical advice, diagnoses, or guaranteed pharmacological treatments. Always consult registered healthcare professionals.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- How It Works Section -->
+  <div class="mb-5">
+    <div class="text-center mb-4">
+      <h2 class="fw-bold text-dark">How AyuMorph Works</h2>
+      <p class="text-muted">A streamlined pipeline from leaf photograph to verified classification</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="ayu-card p-4 h-100 text-center">
+          <div class="rounded-circle bg-success bg-opacity-10 text-success d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
+            <i class="bi bi-cloud-arrow-up fs-2"></i>
+          </div>
+          <h4 class="h5 fw-bold mb-2">1. Image Acquisition</h4>
+          <p class="text-muted small mb-0">
+            Upload or drop a high-resolution photograph of the plant specimen (leaf, flower, or stem). The server validates format, dimensions, and image integrity.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="ayu-card p-4 h-100 text-center">
+          <div class="rounded-circle bg-success bg-opacity-10 text-success d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
+            <i class="bi bi-diagram-3 fs-2"></i>
+          </div>
+          <h4 class="h5 fw-bold mb-2">2. MobileNetV2 Feature Extraction</h4>
+          <p class="text-muted small mb-0">
+            Image is resized to 224&times;224 and normalized. The deep convolutional MobileNetV2 network extracts hierarchical morphological features with transfer learning.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="ayu-card p-4 h-100 text-center">
+          <div class="rounded-circle bg-success bg-opacity-10 text-success d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
+            <i class="bi bi-journal-check fs-2"></i>
+          </div>
+          <h4 class="h5 fw-bold mb-2">3. Classification &amp; Insights</h4>
+          <p class="text-muted small mb-0">
+            Computes prediction confidence and pairs the classified specimen with verified botanical records, morphology markers, and documented traditional uses.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Features Section -->
+  <div class="mb-5">
+    <div class="text-center mb-4">
+      <h2 class="fw-bold text-dark">Portal Capabilities</h2>
+      <p class="text-muted">Designed for academic rigour, research auditability, and ease of demonstration</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-3">
+        <div class="ayu-card p-3 h-100">
+          <div class="d-flex align-items-center gap-3 mb-2">
+            <i class="bi bi-lightning-charge text-success fs-4"></i>
+            <h6 class="fw-bold mb-0">Instant Inference</h6>
+          </div>
+          <p class="small text-muted mb-0">Single-call cached model loading prevents disk thrashing, delivering low latency inference.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="ayu-card p-3 h-100">
+          <div class="d-flex align-items-center gap-3 mb-2">
+            <i class="bi bi-shield-check text-success fs-4"></i>
+            <h6 class="fw-bold mb-0">Auditable Records</h6>
+          </div>
+          <p class="small text-muted mb-0">Every prediction is stored with exact confidence percentages, inference timestamps, and raw logits.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="ayu-card p-3 h-100">
+          <div class="d-flex align-items-center gap-3 mb-2">
+            <i class="bi bi-lock text-success fs-4"></i>
+            <h6 class="fw-bold mb-0">User Privacy</h6>
+          </div>
+          <p class="small text-muted mb-0">Authenticated session management isolates student prediction logs securely using Django Auth.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="ayu-card p-3 h-100">
+          <div class="d-flex align-items-center gap-3 mb-2">
+            <i class="bi bi-book text-success fs-4"></i>
+            <h6 class="fw-bold mb-0">Botanical Catalog</h6>
+          </div>
+          <p class="small text-muted mb-0">Searchable repository of reference Ayurvedic plants with verified botanical taxonomy.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Technology Stack Section -->
+  <div class="ayu-card p-4 mb-5">
+    <div class="row g-4 align-items-center">
+      <div class="col-lg-4">
+        <h3 class="fw-bold text-dark mb-2">Technology Stack</h3>
+        <p class="text-muted small mb-0">
+          Built using Python, Django, and TensorFlow/Keras without unnecessary frontend complexity, strictly adhering to B.Tech project best practices.
+        </p>
+      </div>
+      <div class="col-lg-8">
+        <div class="row g-3">
+          <div class="col-6 col-sm-4">
+            <div class="border rounded p-2 text-center bg-light">
+              <strong class="d-block small text-dark">Django 5.1</strong>
+              <span class="text-muted" style="font-size: 0.75rem;">Backend &amp; ORM</span>
+            </div>
+          </div>
+          <div class="col-6 col-sm-4">
+            <div class="border rounded p-2 text-center bg-light">
+              <strong class="d-block small text-dark">MobileNetV2</strong>
+              <span class="text-muted" style="font-size: 0.75rem;">Transfer Learning</span>
+            </div>
+          </div>
+          <div class="col-6 col-sm-4">
+            <div class="border rounded p-2 text-center bg-light">
+              <strong class="d-block small text-dark">TensorFlow/Keras</strong>
+              <span class="text-muted" style="font-size: 0.75rem;">Deep Learning Engine</span>
+            </div>
+          </div>
+          <div class="col-6 col-sm-4">
+            <div class="border rounded p-2 text-center bg-light">
+              <strong class="d-block small text-dark">Pillow (PIL)</strong>
+              <span class="text-muted" style="font-size: 0.75rem;">Image Processing</span>
+            </div>
+          </div>
+          <div class="col-6 col-sm-4">
+            <div class="border rounded p-2 text-center bg-light">
+              <strong class="d-block small text-dark">Bootstrap 5.3</strong>
+              <span class="text-muted" style="font-size: 0.75rem;">Responsive UI</span>
+            </div>
+          </div>
+          <div class="col-6 col-sm-4">
+            <div class="border rounded p-2 text-center bg-light">
+              <strong class="d-block small text-dark">SQLite 3</strong>
+              <span class="text-muted" style="font-size: 0.75rem;">Relational Database</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom CTA -->
+  <div class="text-center pb-4">
+    <h3 class="fw-bold mb-3">Ready to classify a plant specimen?</h3>
+    <a href="{% url 'classifier:upload' %}" class="btn btn-ayumorph btn-lg px-4">
+      <i class="bi bi-camera me-2"></i> Get Started with Image Upload
+    </a>
+  </div>
+
+</div>
+{% endblock %}

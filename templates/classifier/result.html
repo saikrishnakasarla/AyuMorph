@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Prediction Result #{{ prediction.id }} – AyuMorph{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+
+  <div class="mb-4">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'classifier:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'classifier:history' %}">History</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Result #{{ prediction.id }}</li>
+      </ol>
+    </nav>
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+      <div>
+        <h1 class="h2 fw-bold text-dark mb-1">Classification Results</h1>
+        <p class="text-muted mb-0">Specimen Inference Analysis ID: <strong>#AYU-{{ prediction.id|stringformat:"05d" }}</strong></p>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="{% url 'classifier:upload' %}" class="btn btn-ayumorph btn-sm">
+          <i class="bi bi-camera me-1"></i> Try Another Image
+        </a>
+        <a href="{% url 'classifier:history' %}" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-clock-history me-1"></i> View History
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Left Column: Uploaded Image & Model Metrics -->
+    <div class="col-lg-5">
+      <div class="ayu-card p-4 text-center mb-4">
+        <h5 class="fw-bold text-dark text-start mb-3"><i class="bi bi-image me-2 text-success"></i> Submitted Specimen</h5>
+        <div class="mb-3 position-relative">
+          {% if prediction.uploaded_image %}
+            <img src="{{ prediction.uploaded_image.url }}" alt="Uploaded Specimen" class="img-fluid rounded border shadow-sm" style="max-height: 380px; width: 100%; object-fit: contain; background: #fdfdfd;">
+          {% else %}
+            <div class="bg-light p-5 rounded text-muted">No image available</div>
+          {% endif %}
+        </div>
+
+        <!-- Classification Badge -->
+        <div class="p-3 rounded {% if prediction.is_ayurvedic %}bg-success-subtle border border-success-subtle{% else %}bg-secondary-subtle border border-secondary-subtle{% endif %} mb-3">
+          <span class="text-muted small d-block mb-1">Model Classification</span>
+          <h3 class="fw-bold {% if prediction.is_ayurvedic %}text-success{% else %}text-secondary{% endif %} mb-0">
+            {{ prediction.predicted_class }}
+          </h3>
+        </div>
+
+        <!-- Confidence Gauge Bar -->
+        <div class="text-start mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="small fw-semibold text-muted">Statistical Confidence</span>
+            <span class="fw-bold fs-5 text-dark">{{ prediction.confidence|floatformat:2 }}%</span>
+          </div>
+          <div class="progress" style="height: 10px; border-radius: 5px;">
+            <div class="progress-bar {% if prediction.is_ayurvedic %}bg-success{% else %}bg-secondary{% endif %}" role="progressbar" style="width: {{ prediction.confidence }}%;" aria-valuenow="{{ prediction.confidence }}" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+          <div class="small text-muted mt-1" style="font-size: 0.75rem;">
+            Raw Sigmoid Output: <code>{{ prediction.raw_score|default:"N/A" }}</code> &bull; Inference Time: <code>{{ prediction.processing_time|default:"0.00" }}s</code>
+          </div>
+        </div>
+
+        <!-- Metadata List -->
+        <div class="text-start small text-muted border-top pt-3">
+          <div class="d-flex justify-content-between py-1">
+            <span>Inference Timestamp:</span>
+            <strong class="text-dark">{{ prediction.created_at|date:"M d, Y h:i A" }}</strong>
+          </div>
+          <div class="d-flex justify-content-between py-1">
+            <span>Architecture:</span>
+            <strong class="text-dark">{{ prediction.model_version }}</strong>
+          </div>
+          <div class="d-flex justify-content-between py-1">
+            <span>Submitted By:</span>
+            <strong class="text-dark">{{ prediction.user.username }}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Matched Plant & Botanical Literature -->
+    <div class="col-lg-7">
+      {% if plant %}
+        <div class="ayu-card p-4 mb-4">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <span class="badge bg-success-subtle text-success border border-success-subtle mb-2">{{ plant.category }}</span>
+              <h3 class="fw-bold text-dark mb-0">{{ plant.name }}</h3>
+              <p class="text-muted fst-italic mb-0">Binomial: {{ plant.scientific_name }}</p>
+            </div>
+            <a href="{% url 'plants:plant_detail' plant.pk %}" class="btn btn-outline-ayumorph btn-sm">
+              <i class="bi bi-box-arrow-up-right me-1"></i> Full Botanical Profile
+            </a>
+          </div>
+
+          <hr class="my-3">
+
+          <!-- Botanical Description -->
+          <div class="mb-3">
+            <h6 class="fw-bold text-success"><i class="bi bi-book me-1"></i> Botanical Overview</h6>
+            <p class="small text-muted leading-relaxed mb-0">{{ plant.description }}</p>
+          </div>
+
+          <!-- Morphology -->
+          <div class="mb-3">
+            <h6 class="fw-bold text-success"><i class="bi bi-diagram-3 me-1"></i> Physical Morphology</h6>
+            <p class="small text-muted leading-relaxed mb-0">{{ plant.morphology }}</p>
+          </div>
+
+          <!-- Diagnostic Features -->
+          <div class="mb-3">
+            <h6 class="fw-bold text-success"><i class="bi bi-search me-1"></i> Diagnostic Identification Features</h6>
+            <p class="small text-muted leading-relaxed mb-0">{{ plant.identification_features }}</p>
+          </div>
+
+          <!-- Traditional Ayurvedic Uses -->
+          <div class="mb-2">
+            <h6 class="fw-bold text-success"><i class="bi bi-journal-medical me-1"></i> Commonly Documented Traditional Uses</h6>
+            <p class="small text-muted leading-relaxed mb-0">{{ plant.traditional_uses }}</p>
+          </div>
+        </div>
+      {% else %}
+        <div class="ayu-card p-4 mb-4 text-center">
+          <i class="bi bi-tree text-muted fs-1 mb-2 d-block"></i>
+          <h5 class="fw-bold text-dark mb-2">No Specific Plant Catalog Record Linked</h5>
+          <p class="small text-muted mb-3">
+            The model classified this specimen as <strong>{{ prediction.predicted_class }}</strong>.
+            You can browse the plant repository to explore catalogued reference species and their morphological markers.
+          </p>
+          <a href="{% url 'plants:plant_list' %}" class="btn btn-outline-ayumorph btn-sm">
+            <i class="bi bi-flower1 me-1"></i> Browse Botanical Catalog
+          </a>
+        </div>
+      {% endif %}
+
+      <!-- Notes if present -->
+      {% if prediction.notes %}
+        <div class="ayu-card p-3 mb-4 bg-light">
+          <h6 class="fw-bold text-dark mb-1"><i class="bi bi-journal-text me-1 text-success"></i> Researcher Notes</h6>
+          <p class="small text-muted mb-0">{{ prediction.notes }}</p>
+        </div>
+      {% endif %}
+
+      <!-- Informational Disclaimer Banner -->
+      <div class="disclaimer-card shadow-sm m-0">
+        <h6 class="disclaimer-title"><i class="bi bi-shield-exclamation me-1"></i> Informational &amp; Scientific Disclaimer</h6>
+        <p class="disclaimer-text">
+          Traditional plant information presented on this portal is strictly for academic botanical documentation.
+          AyuMorph does <strong>not</strong> make therapeutic claims, prescribe remedies, or guarantee medicinal efficacy.
+          Deep learning model confidence represents visual feature similarity and must not be interpreted as definitive clinical certainty.
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

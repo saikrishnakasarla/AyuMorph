@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Technical Audit #{{ prediction.id }} – AyuMorph{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+
+  <div class="mb-4">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'classifier:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'classifier:history' %}">History</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Audit #{{ prediction.id }}</li>
+      </ol>
+    </nav>
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h1 class="h2 fw-bold text-dark mb-1">Inference Technical Audit</h1>
+        <p class="text-muted mb-0">Record ID: <code>#AYU-{{ prediction.id|stringformat:"05d" }}</code> &bull; Execution Metadata</p>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="{% url 'classifier:prediction_result' prediction.pk %}" class="btn btn-ayumorph btn-sm">
+          <i class="bi bi-eye me-1"></i> Presentation View
+        </a>
+        <a href="{% url 'classifier:prediction_delete' prediction.pk %}" class="btn btn-outline-danger btn-sm">
+          <i class="bi bi-trash me-1"></i> Delete
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <div class="ayu-card p-4 text-center">
+        <h6 class="fw-bold text-dark mb-3">Submitted Image File</h6>
+        {% if prediction.uploaded_image %}
+          <img src="{{ prediction.uploaded_image.url }}" alt="Specimen" class="img-fluid rounded border shadow-sm mb-3" style="max-height: 260px; object-fit: contain;">
+          <div class="small text-muted text-break"><code>{{ prediction.uploaded_image.name }}</code></div>
+        {% else %}
+          <div class="bg-light p-4 rounded text-muted">No image file stored</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div class="ayu-card p-4">
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-cpu me-2 text-success"></i> Model Execution Log</h5>
+        <div class="table-responsive">
+          <table class="table table-bordered mb-0">
+            <tbody>
+              <tr>
+                <th class="w-35 bg-light">Classification Status</th>
+                <td>
+                  {% if prediction.prediction_status == 'SUCCESS' %}
+                    <span class="badge bg-success">SUCCESS</span>
+                  {% elif prediction.prediction_status == 'FAILED' %}
+                    <span class="badge bg-danger">FAILED / PENDING</span>
+                  {% else %}
+                    <span class="badge bg-secondary">{{ prediction.prediction_status }}</span>
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <th class="bg-light">Predicted Class Label</th>
+                <td><strong>{{ prediction.predicted_class }}</strong></td>
+              </tr>
+              <tr>
+                <th class="bg-light">Statistical Confidence</th>
+                <td>
+                  <strong>{{ prediction.confidence|floatformat:2 }}%</strong>
+                  {% if prediction.raw_score is not None %}
+                    <span class="text-muted small ms-2">(Raw Score: {{ prediction.raw_score }})</span>
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <th class="bg-light">Model Architecture / Version</th>
+                <td><code>{{ prediction.model_version }}</code></td>
+              </tr>
+              <tr>
+                <th class="bg-light">Inference Latency</th>
+                <td>
+                  {% if prediction.processing_time is not None %}
+                    <code>{{ prediction.processing_time|floatformat:4 }} seconds</code>
+                  {% else %}
+                    <span class="text-muted">N/A</span>
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <th class="bg-light">Authenticated Researcher</th>
+                <td>{{ prediction.user.username }} ({{ prediction.user.email }})</td>
+              </tr>
+              <tr>
+                <th class="bg-light">Timestamp (UTC / IST)</th>
+                <td>{{ prediction.created_at|date:"Y-m-d H:i:s" }}</td>
+              </tr>
+              <tr>
+                <th class="bg-light">Researcher Notes</th>
+                <td>{{ prediction.notes|default:"None recorded" }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

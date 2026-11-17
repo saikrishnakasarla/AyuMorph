@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sign In – AyuMorph Portal{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+
+      <div class="ayu-card p-4 p-sm-5 shadow-sm">
+        <div class="text-center mb-4">
+          <img src="{% static 'images/logo.svg' %}" alt="AyuMorph" width="56" height="56" class="mb-2">
+          <h2 class="fw-bold text-dark mb-1">Researcher Sign In</h2>
+          <p class="text-muted small">Access your plant classification dashboard and history</p>
+        </div>
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger py-2 small mb-3">
+              {% for error in form.non_field_errors %}
+                <div>{{ error }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <div class="mb-3">
+            <label for="{{ form.username.id_for_label }}" class="form-label fw-semibold small">Username</label>
+            {{ form.username }}
+            {% if form.username.errors %}
+              <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-4">
+            <label for="{{ form.password.id_for_label }}" class="form-label fw-semibold small">Password</label>
+            {{ form.password }}
+            {% if form.password.errors %}
+              <div class="text-danger small mt-1">{{ form.password.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="d-grid mb-3">
+            <button type="submit" class="btn btn-ayumorph btn-lg">
+              <i class="bi bi-box-arrow-in-right me-2"></i> Sign In to Portal
+            </button>
+          </div>
+
+          <div class="text-center small text-muted">
+            Don't have an account yet?
+            <a href="{% url 'register' %}" class="fw-semibold text-success text-decoration-none ms-1">Create an Account</a>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

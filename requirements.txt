@@ -1,0 +1,17 @@
+# AyuMorph - Ayurvedic Plant Intelligence Portal
+# Academic B.Tech IT Project Requirements
+
+# Core Web Framework
+Django>=5.0,<5.2
+python-dotenv>=1.0.0
+
+# Scientific & Image Processing
+Pillow>=10.0.0
+numpy>=1.24.0
+h5py>=3.10.0
+
+# Machine Learning Engine (MobileNetV2 Inference)
+# Note for Windows Users: For full native TensorFlow support, Python 3.10 or 3.11 is recommended.
+# Keras 3 can also load .h5 / .keras models natively with PyTorch/TensorFlow backends.
+keras>=3.0.0
+tensorflow>=2.15.0; python_version < "3.13"

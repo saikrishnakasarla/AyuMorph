@@ -1,0 +1,40 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Environment files
+.env
+
+# SQLite database
+*.sqlite3
+db.sqlite3-journal
+
+# Django media files
+media/plant_images/*
+!media/plant_images/.gitkeep
+media/avatars/*
+!media/avatars/.gitkeep
+media/plants/*
+!media/plants/.gitkeep
+
+# IDE and OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+Thumbs.db
+.DS_Store
+
+# Static collected
+staticfiles/
+
+# Test coverage
+.coverage
+htmlcov/

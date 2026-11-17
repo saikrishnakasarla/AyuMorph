@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Botanical Plant Catalog – AyuMorph{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+
+  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-4">
+    <div>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1">
+          <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Botanical Catalog</li>
+        </ol>
+      </nav>
+      <h1 class="h2 fw-bold text-dark mb-0">Ayurvedic Botanical Catalog</h1>
+      <p class="text-muted small mb-0">Catalog of documented reference species and morphological features (Total: <strong>{{ total_count }}</strong>)</p>
+    </div>
+    <div>
+      <a href="{% url 'classifier:upload' %}" class="btn btn-ayumorph">
+        <i class="bi bi-camera me-1"></i> Classify Specimen
+      </a>
+    </div>
+  </div>
+
+  <!-- Search & Category Filters -->
+  <div class="ayu-card p-3 mb-4">
+    <form method="get" class="row g-2 align-items-center">
+      <div class="col-md-5">
+        <div class="input-group">
+          <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+          <input type="text" name="q" class="form-control border-start-0" placeholder="Search by common name, scientific binomial, or morphology..." value="{{ search_query }}">
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <select name="category" class="form-select">
+          <option value="">All Botanical Categories</option>
+          {% for cat_val, cat_label in categories %}
+            <option value="{{ cat_val }}" {% if category_filter == cat_val %}selected{% endif %}>{{ cat_label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-6 col-md-2">
+        <select name="sort" class="form-select">
+          <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Name (A &rarr; Z)</option>
+          <option value="name_desc" {% if sort_by == 'name_desc' %}selected{% endif %}>Name (Z &rarr; A)</option>
+          <option value="created" {% if sort_by == 'created' %}selected{% endif %}>Recently Added</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-ayumorph w-100">Search</button>
+        {% if search_query or category_filter or sort_by != 'name' %}
+          <a href="{% url 'plants:plant_list' %}" class="btn btn-light border" title="Reset Filters"><i class="bi bi-x-lg"></i></a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  <!-- Plants Cards Grid -->
+  {% if page_obj.object_list %}
+    <div class="row g-4 mb-4">
+      {% for plant in page_obj.object_list %}
+        <div class="col-md-6 col-lg-4">
+          <div class="ayu-card h-100 d-flex flex-column overflow-hidden">
+            <div class="position-relative bg-light text-center border-bottom" style="height: 180px;">
+              {% if plant.image %}
+                <img src="{{ plant.image.url }}" alt="{{ plant.name }}" class="w-100 h-100" style="object-fit: cover;">
+              {% else %}
+                <div class="h-100 d-flex flex-column align-items-center justify-content-center text-muted">
+                  <i class="bi bi-flower1 fs-1 text-success opacity-50 mb-1"></i>
+                  <span class="small">Botanical Specimen</span>
+                </div>
+              {% endif %}
+              <span class="badge bg-white text-success border position-absolute top-0 end-0 m-2 shadow-sm">
+                {{ plant.category }}
+              </span>
+            </div>
+
+            <div class="p-3 d-flex flex-column flex-grow-1">
+              <h5 class="fw-bold text-dark mb-1">{{ plant.name }}</h5>
+              <p class="text-muted small fst-italic mb-2">{{ plant.scientific_name }}</p>
+              
+              <p class="small text-muted flex-grow-1 mb-3" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                {{ plant.description }}
+              </p>
+
+              <div class="pt-2 border-top mt-auto d-flex justify-content-between align-items-center">
+                <span class="small text-muted" style="font-size: 0.75rem;">
+                  <i class="bi bi-tag me-1"></i> Ref Catalog
+                </span>
+                <a href="{% url 'plants:plant_detail' plant.pk %}" class="btn btn-sm btn-outline-success">
+                  View Profile <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+      <div class="ayu-card p-3 mb-4 d-flex justify-content-between align-items-center">
+        <div class="small text-muted">
+          Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </div>
+        <nav aria-label="Page navigation">
+          <ul class="pagination pagination-sm mb-0">
+            {% if page_obj.has_previous %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">Previous</a>
+              </li>
+            {% else %}
+              <li class="page-item disabled"><span class="page-link">Previous</span></li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+              {% if page_obj.number == num %}
+                <li class="page-item active"><span class="page-link bg-success border-success">{{ num }}</span></li>
+              {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item"><a class="page-link" href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">{{ num }}</a></li>
+              {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">Next</a>
+              </li>
+            {% else %}
+              <li class="page-item disabled"><span class="page-link">Next</span></li>
+            {% endif %}
+          </ul>
+        </nav>
+      </div>
+    {% endif %}
+
+  {% else %}
+    <div class="ayu-card p-5 text-center mb-4">
+      <i class="bi bi-flower1 text-muted fs-1 mb-2 d-block"></i>
+      <h5 class="fw-bold text-dark">No plant species match your search</h5>
+      <p class="small text-muted mb-3">Try different keywords or view all documented plants.</p>
+      <a href="{% url 'plants:plant_list' %}" class="btn btn-sm btn-ayumorph">Reset Filters</a>
+    </div>
+  {% endif %}
+
+  <!-- Academic Disclaimer Banner -->
+  <div class="disclaimer-card shadow-sm m-0">
+    <h6 class="disclaimer-title"><i class="bi bi-shield-exclamation me-1"></i> Botanical Literature Notice</h6>
+    <p class="disclaimer-text">
+      The morphological attributes and historical uses described in this database are compiled from traditional ethnobotanical treatises and are provided solely for academic study. They do not constitute pharmacological evaluations or clinical endorsements.
+    </p>
+  </div>
+
+</div>
+{% endblock %}

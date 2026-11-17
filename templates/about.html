@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About AyuMorph – Project Architecture &amp; Methodology{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+
+  <div class="mb-4">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">About AyuMorph</li>
+      </ol>
+    </nav>
+    <h1 class="fw-bold text-dark mb-1">About AyuMorph</h1>
+    <p class="text-muted">Academic B.Tech Information Technology Capstone Project</p>
+  </div>
+
+  <!-- Project Abstract -->
+  <div class="ayu-card p-4 mb-4">
+    <h4 class="fw-bold text-success mb-3"><i class="bi bi-file-earmark-text me-2"></i> Project Abstract</h4>
+    <p class="text-muted leading-relaxed">
+      <strong>AyuMorph (Ayurvedic Plant Intelligence Portal)</strong> addresses the challenge of botanical species identification by integrating computer vision and transfer learning with authenticated relational data management.
+      In traditional Ayurvedic practice and botany, distinguishing authentic medicinal herbs from morphologically similar wild foliage requires significant taxonomic expertise.
+      AyuMorph bridges this knowledge gap by providing a responsive web portal where students, botanists, and researchers can submit plant photographs and receive deep learning classifications powered by a trained <strong>MobileNetV2</strong> convolutional neural network, backed by documented botanical and traditional knowledge.
+    </p>
+  </div>
+
+  <!-- Deep Learning Architecture -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-6">
+      <div class="ayu-card p-4 h-100">
+        <h4 class="fw-bold text-dark mb-3"><i class="bi bi-cpu me-2 text-success"></i> Deep Learning Model Pipeline</h4>
+        <ul class="list-unstyled mb-0">
+          <li class="mb-3 d-flex align-items-start gap-2">
+            <i class="bi bi-check-circle-fill text-success mt-1"></i>
+            <div>
+              <strong>Base Architecture: MobileNetV2</strong>
+              <p class="small text-muted mb-0">Pre-trained on ImageNet to leverage generalized visual features (edges, textures, venation patterns).</p>
+            </div>
+          </li>
+          <li class="mb-3 d-flex align-items-start gap-2">
+            <i class="bi bi-check-circle-fill text-success mt-1"></i>
+            <div>
+              <strong>Inverted Residuals &amp; Linear Bottlenecks</strong>
+              <p class="small text-muted mb-0">Employs depthwise separable convolutions that drastically decrease parameter footprint while preserving gradient propagation.</p>
+            </div>
+          </li>
+          <li class="mb-3 d-flex align-items-start gap-2">
+            <i class="bi bi-check-circle-fill text-success mt-1"></i>
+            <div>
+              <strong>Custom Classification Head</strong>
+              <p class="small text-muted mb-0">GlobalAveragePooling2D &rarr; Dense(128, activation='relu') &rarr; Dropout(0.2) &rarr; Dense(1, activation='sigmoid').</p>
+            </div>
+          </li>
+          <li class="d-flex align-items-start gap-2">
+            <i class="bi bi-check-circle-fill text-success mt-1"></i>
+            <div>
+              <strong>Input Resolution &amp; Normalization</strong>
+              <p class="small text-muted mb-0">Expected dimensions 224&times;224&times;3 with MobileNetV2 normalization scaling pixel channels to [-1.0, 1.0].</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="ayu-card p-4 h-100">
+        <h4 class="fw-bold text-dark mb-3"><i class="bi bi-layers me-2 text-success"></i> Software Engineering Principles</h4>
+        <ul class="list-unstyled mb-0">
+          <li class="mb-3 d-flex align-items-start gap-2">
+            <i class="bi bi-check-circle-fill text-success mt-1"></i>
+            <div>
+              <strong>Modular Django Architecture</strong>
+              <p class="small text-muted mb-0">Strict separation of concerns into distinct apps: <code>accounts</code>, <code>plants</code>, and <code>classifier</code>.</p>
+            </div>
+          </li>
+          <li class="mb-3 d-flex align-items-start gap-2">
+            <i class="bi bi-check-circle-fill text-success mt-1"></i>
+            <div>
+              <strong>Singleton In-Memory Predictor</strong>
+              <p class="small text-muted mb-0">Models are loaded into memory once and reused across inference queries, avoiding costly disk reloads.</p>
+            </div>
+          </li>
+          <li class="mb-3 d-flex align-items-start gap-2">
+            <i class="bi bi-check-circle-fill text-success mt-1"></i>
+            <div>
+              <strong>User Data Isolation</strong>
+              <p class="small text-muted mb-0">Prediction histories and audit logs are scoped strictly to the authenticated user via foreign-key constraints.</p>
+            </div>
+          </li>
+          <li class="d-flex align-items-start gap-2">
+            <i class="bi bi-check-circle-fill text-success mt-1"></i>
+            <div>
+              <strong>Defensive Image Validation</strong>
+              <p class="small text-muted mb-0">Client and server-side checks verify MIME-types, byte headers, dimensions, and image integrity via Pillow.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Model Configuration Diagnostics -->
+  <div class="ayu-card p-4 mb-4">
+    <h4 class="fw-bold text-dark mb-3"><i class="bi bi-gear-wide-connected me-2 text-success"></i> Model Environment Diagnostics</h4>
+    <div class="table-responsive">
+      <table class="table table-bordered mb-0">
+        <tbody>
+          <tr>
+            <th class="w-25 bg-light">Trained Model Status</th>
+            <td>
+              {% if model_metadata.available %}
+                <span class="badge bg-success"><i class="bi bi-check-lg"></i> Model File Detected</span>
+                <span class="small text-muted ms-2"><code>{{ model_metadata.path }}</code></span>
+              {% else %}
+                <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-triangle"></i> Pending Placement</span>
+                <span class="small text-muted ms-2">Place <code>model.h5</code> into <code>classifier/ml_model/</code></span>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th class="bg-light">Expected Input Shape</th>
+            <td><code>(None, 224, 224, 3)</code></td>
+          </tr>
+          <tr>
+            <th class="bg-light">Output Activation</th>
+            <td><code>Dense(1, activation="sigmoid") &bull; Binary Classification</code></td>
+          </tr>
+          <tr>
+            <th class="bg-light">Default Decision Boundary</th>
+            <td><code>Threshold &ge; 0.50</code> (Configurable via environment variable)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Medical & Legal Disclaimer -->
+  <div class="disclaimer-card shadow-sm">
+    <h5 class="disclaimer-title"><i class="bi bi-exclamation-octagon me-1"></i> Ethical &amp; Botanical Disclaimer</h5>
+    <p class="disclaimer-text">
+      The information provided by AyuMorph is intended solely for scientific research, academic education, and general plant identification.
+      Medicinal properties described are sourced from classical ethnobotanical literature. AyuMorph makes no medical claims, does not provide medical advice, and is not a substitute for clinical healthcare diagnosis or treatment.
+    </p>
+  </div>
+
+</div>
+{% endblock %}

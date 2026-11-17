@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ plant.name }} ({{ plant.scientific_name }}) – AyuMorph Catalog{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+
+  <div class="mb-4">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'plants:plant_list' %}">Plant Catalog</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ plant.name }}</li>
+      </ol>
+    </nav>
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+      <div>
+        <span class="badge bg-success-subtle text-success border border-success-subtle mb-1">{{ plant.category }}</span>
+        <h1 class="h2 fw-bold text-dark mb-0">{{ plant.name }}</h1>
+        <p class="text-muted fst-italic mb-0">Taxonomic Binomial: <strong>{{ plant.scientific_name }}</strong></p>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="{% url 'classifier:upload' %}" class="btn btn-ayumorph btn-sm">
+          <i class="bi bi-camera me-1"></i> Classify a Specimen
+        </a>
+        <a href="{% url 'plants:plant_list' %}" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-arrow-left me-1"></i> Back to Catalog
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Left Column: Image & Botanical Highlights -->
+    <div class="col-lg-5">
+      <div class="ayu-card p-4 text-center mb-4">
+        {% if plant.image %}
+          <img src="{{ plant.image.url }}" alt="{{ plant.name }}" class="img-fluid rounded border shadow-sm mb-3" style="max-height: 380px; width: 100%; object-fit: cover;">
+        {% else %}
+          <div class="bg-light p-5 rounded border text-muted mb-3 d-flex flex-column align-items-center justify-content-center" style="min-height: 260px;">
+            <i class="bi bi-flower1 fs-1 text-success opacity-50 mb-2"></i>
+            <span class="small">Reference Botanical Specimen</span>
+          </div>
+        {% endif %}
+
+        <div class="text-start small text-muted border-top pt-3">
+          <div class="d-flex justify-content-between py-1">
+            <span>Botanical Category:</span>
+            <strong class="text-dark">{{ plant.category }}</strong>
+          </div>
+          <div class="d-flex justify-content-between py-1">
+            <span>Binomial Nomenclature:</span>
+            <strong class="text-dark fst-italic">{{ plant.scientific_name }}</strong>
+          </div>
+          <div class="d-flex justify-content-between py-1">
+            <span>Verified Status:</span>
+            <span class="badge bg-success">Active Catalog Entry</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Action Card -->
+      <div class="ayu-card p-4 text-center">
+        <h6 class="fw-bold text-dark mb-2">Have a specimen of this species?</h6>
+        <p class="small text-muted mb-3">Upload a photo to see if MobileNetV2 recognizes its visual markers.</p>
+        <a href="{% url 'classifier:upload' %}" class="btn btn-ayumorph btn-sm w-100">
+          <i class="bi bi-camera me-1"></i> Launch Vision Classifier
+        </a>
+      </div>
+    </div>
+
+    <!-- Right Column: Taxonomy, Morphology, Features, Traditional Uses -->
+    <div class="col-lg-7">
+      <div class="ayu-card p-4 mb-4">
+        <h5 class="fw-bold text-success mb-3">
+          <i class="bi bi-book me-2"></i> Species Overview &amp; Habitat
+        </h5>
+        <p class="text-muted leading-relaxed mb-4">{{ plant.description }}</p>
+
+        <h5 class="fw-bold text-success mb-3">
+          <i class="bi bi-diagram-3 me-2"></i> Vegetative &amp; Floral Morphology
+        </h5>
+        <p class="text-muted leading-relaxed mb-4">{{ plant.morphology }}</p>
+
+        <h5 class="fw-bold text-success mb-3">
+          <i class="bi bi-search me-2"></i> Diagnostic Field Identification Features
+        </h5>
+        <p class="text-muted leading-relaxed mb-4">{{ plant.identification_features }}</p>
+
+        <h5 class="fw-bold text-success mb-3">
+          <i class="bi bi-journal-medical me-2"></i> Documented Traditional Ayurvedic Applications
+        </h5>
+        <p class="text-muted leading-relaxed mb-0">{{ plant.traditional_uses }}</p>
+      </div>
+
+      <!-- Informational Disclaimer Banner -->
+      <div class="disclaimer-card shadow-sm m-0">
+        <h6 class="disclaimer-title"><i class="bi bi-shield-exclamation me-1"></i> Informational &amp; Scientific Disclaimer</h6>
+        <p class="disclaimer-text">
+          The traditional applications described herein represent ethnobotanical documentation recorded in classical Ayurvedic treatises (Charaka Samhita, Sushruta Samhita, Bhavaprakasha).
+          This portal does not advocate self-medication, nor does it guarantee therapeutic or medicinal efficacy. For medical guidance, consult certified healthcare practitioners.
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

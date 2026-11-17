@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard – AyuMorph Portal{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+
+  <!-- Welcome Banner -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+      <h1 class="h2 fw-bold text-dark mb-1">Researcher Dashboard</h1>
+      <p class="text-muted mb-0">Welcome back, <strong>{{ user.first_name|default:user.username }}</strong> &bull; Overview of plant specimen classifications</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{% url 'classifier:upload' %}" class="btn btn-ayumorph">
+        <i class="bi bi-camera me-1"></i> Classify New Plant
+      </a>
+      <a href="{% url 'plants:plant_list' %}" class="btn btn-outline-ayumorph">
+        <i class="bi bi-flower1 me-1"></i> Botanical Database
+      </a>
+    </div>
+  </div>
+
+  <!-- Model Status Notice if model is pending -->
+  {% if not is_model_ready %}
+    <div class="alert alert-warning d-flex align-items-center justify-content-between p-3 mb-4 shadow-sm" role="alert">
+      <div class="d-flex align-items-center gap-3">
+        <i class="bi bi-exclamation-triangle-fill fs-3 text-warning"></i>
+        <div>
+          <strong>MobileNetV2 Model File Pending:</strong>
+          <span class="small d-block text-muted">Place your trained <code>model.h5</code> or <code>model.keras</code> file in <code>classifier/ml_model/</code> to activate automated inference.</span>
+        </div>
+      </div>
+      <a href="{% url 'about' %}" class="btn btn-sm btn-outline-dark">View Details</a>
+    </div>
+  {% endif %}
+
+  <!-- Statistics Metrics Row -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+      <div class="stat-card">
+        <div class="stat-number">{{ total_count }}</div>
+        <div class="stat-label">Total Queries</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stat-card">
+        <div class="stat-number text-success">{{ ayurvedic_count }}</div>
+        <div class="stat-label">Ayurvedic Detections</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stat-card">
+        <div class="stat-number text-secondary">{{ non_ayurvedic_count }}</div>
+        <div class="stat-label">Non-Ayurvedic</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stat-card">
+        <div class="stat-number text-primary">{{ catalog_count }}</div>
+        <div class="stat-label">Catalog Species</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Queries Table / Cards -->
+  <div class="ayu-card p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="fw-bold text-dark mb-0"><i class="bi bi-clock-history me-2 text-success"></i> Recent Inference Queries</h5>
+      <a href="{% url 'classifier:history' %}" class="btn btn-sm btn-outline-secondary">View All History</a>
+    </div>
+
+    {% if recent_predictions %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col" style="width: 70px;">Sample</th>
+              <th scope="col">Predicted Class</th>
+              <th scope="col">Confidence</th>
+              <th scope="col">Catalog Link</th>
+              <th scope="col">Date &amp; Time</th>
+              <th scope="col" class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for pred in recent_predictions %}
+              <tr>
+                <td>
+                  {% if pred.uploaded_image %}
+                    <img src="{{ pred.uploaded_image.url }}" alt="Specimen" class="rounded" style="width: 48px; height: 48px; object-fit: cover;">
+                  {% else %}
+                    <span class="badge bg-light text-muted border">No Img</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <strong>{{ pred.predicted_class }}</strong>
+                  {% if pred.prediction_status == 'FAILED' %}
+                    <span class="badge bg-danger ms-1">Failed</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if pred.prediction_status == 'SUCCESS' %}
+                    <div class="d-flex align-items-center gap-2" style="max-width: 140px;">
+                      <div class="progress flex-grow-1" style="height: 6px;">
+                        <div class="progress-bar {% if pred.is_ayurvedic %}bg-success{% else %}bg-secondary{% endif %}" role="progressbar" style="width: {{ pred.confidence }}%;" aria-valuenow="{{ pred.confidence }}" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+                      <span class="small fw-semibold">{{ pred.confidence|floatformat:1 }}%</span>
+                    </div>
+                  {% else %}
+                    <span class="text-muted small">&ndash;</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if pred.plant %}
+                    <a href="{% url 'plants:plant_detail' pred.plant.pk %}" class="badge bg-success-subtle text-success text-decoration-none border border-success-subtle">
+                      <i class="bi bi-flower1 me-1"></i> {{ pred.plant.name }}
+                    </a>
+                  {% else %}
+                    <span class="text-muted small">Not linked</span>
+                  {% endif %}
+                </td>
+                <td class="small text-muted">
+                  {{ pred.created_at|date:"M d, Y" }} <span class="d-block text-secondary" style="font-size: 0.75rem;">{{ pred.created_at|time:"h:i A" }}</span>
+                </td>
+                <td class="text-end">
+                  <a href="{% url 'classifier:prediction_result' pred.pk %}" class="btn btn-sm btn-outline-success">
+                    <i class="bi bi-eye"></i> View
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-center py-5">
+        <i class="bi bi-camera text-muted fs-1 d-block mb-2"></i>
+        <h6 class="fw-bold text-muted">No classification records yet</h6>
+        <p class="small text-muted mb-3">Upload your first plant photo to test the MobileNetV2 intelligence engine.</p>
+        <a href="{% url 'classifier:upload' %}" class="btn btn-sm btn-ayumorph">Upload Plant Image</a>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
